@@ -1,10 +1,30 @@
 "use client";
 
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { authClient } from "@/lib/auth-client";
 
 export function UserFooter() {
   const { user, isLoading } = useCurrentUser();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+      router.push("/authentication");
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -46,19 +66,30 @@ export function UserFooter() {
   };
 
   return (
-    <div className="bg-card flex flex-row items-center gap-3 rounded-lg p-2 hover:bg-accent duration-200">
-      {/* Avatar com iniciais */}
-      <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold">
-        {getInitials(user.name)}
-      </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="bg-card hover:bg-accent flex cursor-pointer flex-row items-center gap-3 rounded-lg p-2 duration-200">
+          {/* Avatar com iniciais */}
+          <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold">
+            {getInitials(user.name)}
+          </div>
 
-      {/* Informações do usuário */}
-      <div className="flex flex-col overflow-hidden">
-        <span className="truncate text-sm font-medium">{user.name}</span>
-        <span className="text-muted-foreground truncate text-xs">
-          {user.email}
-        </span>
-      </div>
-    </div>
+          {/* Informações do usuário */}
+          <div className="flex flex-col overflow-hidden">
+            <span className="truncate text-sm font-medium">{user.name}</span>
+            <span className="text-muted-foreground truncate text-xs">
+              {user.email}
+            </span>
+          </div>
+        </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem onClick={handleLogout} className="text-white">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

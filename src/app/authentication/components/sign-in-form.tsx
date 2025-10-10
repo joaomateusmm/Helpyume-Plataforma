@@ -124,6 +124,11 @@ const SignInForm = () => {
               <Button type="submit" className="w-full">
                 Entrar
               </Button>
+              <div className="flex w-full items-center justify-center gap-3">
+                <div className="h-0 w-full border-t"></div>
+                <p className="text-muted-foreground text-sm">ou</p>
+                <div className="h-0 w-full border-t"></div>
+              </div>
               <Button
                 variant="outline"
                 className="w-full"

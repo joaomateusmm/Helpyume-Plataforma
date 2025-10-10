@@ -1,5 +1,6 @@
 import {
   BellRing,
+  ChartCandlestick,
   CircleFadingPlus,
   CircleMinus,
   LayoutDashboard,
@@ -30,6 +31,11 @@ const items1 = [
     title: "Dashboard",
     url: "/",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Investimentos",
+    url: "/investimentos",
+    icon: ChartCandlestick,
   },
   {
     title: "Ganhos",
