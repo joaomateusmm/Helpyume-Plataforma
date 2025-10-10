@@ -331,16 +331,19 @@ export default function GanhosPage() {
 
   return (
     <div className="p-6">
-      <PageHeader title="Ganhos">
+      <PageHeader title="Ganhos" />
+
+      <div className="mb-6 flex flex-row flex-wrap justify-start gap-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="ml-1 border duration-300 hover:scale-[1.04]"
+              className="w-auto border duration-300 hover:scale-[1.04]"
               size="sm"
               variant="ghost"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Ganho Essencial
+              <Plus className="mr-1 h-4 w-4" />
+              <span className="xs:inline hidden">Criar Ganho Essencial</span>
+              <span className="xs:hidden"> Ganho Essencial</span>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-w-md">
@@ -442,12 +445,13 @@ export default function GanhosPage() {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="animate-gradient-x ml-1 bg-gradient-to-r from-green-600/70 to-green-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
+              className="animate-gradient-x w-auto bg-gradient-to-r from-green-600/70 to-green-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
               size="sm"
               variant="default"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Ganho
+              <Plus className="mr-1 h-4 w-4" />
+              <span className="xs:inline hidden">Novo Ganho</span>
+              <span className="xs:hidden">Novo Ganho</span>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-w-md">
@@ -576,12 +580,12 @@ export default function GanhosPage() {
             </Form>
           </AlertDialogContent>
         </AlertDialog>
-      </PageHeader>
+      </div>
 
       <div className="space-y-6">
         <Card>
           {transactions.length > 0 ? (
-            <CardHeader className="flex items-center justify-between">
+            <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <CardTitle>
                   Histórico dos Ganhos{" "}
@@ -596,20 +600,27 @@ export default function GanhosPage() {
                   </span>
                 )}
               </div>
-              <div>
+              <div className="flex flex-row flex-wrap gap-2">
                 {selectedTransactions.size > 0 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
-                        className="mx-1 border bg-red-700 duration-100 hover:active:scale-95"
+                        className="border bg-red-700 duration-100 hover:active:scale-95"
                         variant="destructive"
                         size="sm"
                         disabled={isDeleting}
                       >
                         <Trash className="mr-2 h-4 w-4" />
-                        {isDeleting
-                          ? "Excluindo..."
-                          : `Excluir (${selectedTransactions.size})`}
+                        <span className="hidden sm:inline">
+                          {isDeleting
+                            ? "Excluindo..."
+                            : `Excluir (${selectedTransactions.size})`}
+                        </span>
+                        <span className="sm:hidden">
+                          {isDeleting
+                            ? "..."
+                            : `(${selectedTransactions.size})`}
+                        </span>
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -637,22 +648,24 @@ export default function GanhosPage() {
                   </AlertDialog>
                 )}
                 <Button
-                  className="mx-1 duration-100 hover:active:scale-95"
+                  className="duration-100 hover:active:scale-95"
                   variant="outline"
                   size="sm"
                   onClick={handleSelectAllPage}
                 >
                   <SquareCheck className="mr-2 h-4 w-4" />
-                  Marcar Página
+                  <span className="hidden sm:inline">Marcar Página</span>
+                  <span className="sm:hidden">Página</span>
                 </Button>
                 <Button
-                  className="mx-1 duration-100 hover:active:scale-95"
+                  className="duration-100 hover:active:scale-95"
                   variant="outline"
                   size="sm"
                   onClick={handleSelectAll}
                 >
                   <CopyCheck className="mr-2 h-4 w-4" />
-                  Marcar Todos
+                  <span className="hidden sm:inline">Marcar Todos</span>
+                  <span className="sm:hidden">Todos</span>
                 </Button>
               </div>
             </CardHeader>
@@ -905,7 +918,7 @@ export default function GanhosPage() {
             )}
           </CardContent>
           {essentialIncomes.length > 0 && (
-            <p className="text-muted-foreground ml-6 pb-4 text-xs">
+            <p className="text-muted-foreground ml-6 pb-2 text-xs">
               Crie seus ganhos fixos do mês e adicione-os com apenas 1 clique.
             </p>
           )}

@@ -326,16 +326,19 @@ export default function GastosPage() {
 
   return (
     <div className="p-6">
-      <PageHeader title="Gastos">
+      <PageHeader title="Gastos" />
+
+      <div className="mb-6 flex flex-row flex-wrap justify-start gap-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="border duration-300 hover:scale-[1.04]"
+              className="w-auto border duration-300 hover:scale-[1.04]"
               size="sm"
               variant="ghost"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Gasto Essencial
+              <Plus className="mr-1 h-4 w-4" />
+              <span className="xs:inline hidden">Criar Gasto Essencial</span>
+              <span className="xs:hidden">Gasto Essencial</span>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-w-md">
@@ -437,12 +440,13 @@ export default function GastosPage() {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="animate-gradient-x ml-1 bg-gradient-to-r from-red-600/70 to-red-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
+              className="animate-gradient-x w-auto bg-gradient-to-r from-red-600/70 to-red-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
               size="sm"
               variant="default"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Novo Gasto
+              <Plus className="mr-1 h-4 w-4" />
+              <span className="xs:inline hidden">Novo Gasto</span>
+              <span className="xs:hidden"> Novo Gasto</span>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-w-md">
@@ -569,12 +573,12 @@ export default function GastosPage() {
             </Form>
           </AlertDialogContent>
         </AlertDialog>
-      </PageHeader>
+      </div>
 
       <div className="space-y-6">
         <Card>
           {expenses.length > 0 ? (
-            <CardHeader className="flex items-center justify-between">
+            <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
                 <CardTitle>
                   Histórico dos Gastos{" "}
@@ -589,20 +593,25 @@ export default function GastosPage() {
                   </span>
                 )}
               </div>
-              <div>
+              <div className="flex flex-row flex-wrap gap-2">
                 {selectedExpenses.size > 0 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
-                        className="mx-1 border bg-red-700 duration-100 hover:active:scale-95"
+                        className="border bg-red-700 duration-100 hover:active:scale-95"
                         variant="destructive"
                         size="sm"
                         disabled={isDeleting}
                       >
                         <Trash className="mr-2 h-4 w-4" />
-                        {isDeleting
-                          ? "Excluindo..."
-                          : `Excluir (${selectedExpenses.size})`}
+                        <span className="xs:inline hidden">
+                          {isDeleting
+                            ? "Excluindo..."
+                            : `Excluir (${selectedExpenses.size})`}
+                        </span>
+                        <span className="xs:hidden">
+                          {isDeleting ? "..." : "Excluir"}
+                        </span>
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -630,22 +639,24 @@ export default function GastosPage() {
                   </AlertDialog>
                 )}
                 <Button
-                  className="mx-1 duration-100 hover:active:scale-95"
+                  className="duration-100 hover:active:scale-95"
                   variant="outline"
                   size="sm"
                   onClick={handleSelectAllPage}
                 >
                   <SquareCheck className="mr-2 h-4 w-4" />
-                  Marcar Página
+                  <span className="xs:inline hidden">Marcar Página</span>
+                  <span className="xs:hidden">Página</span>
                 </Button>
                 <Button
-                  className="mx-1 duration-100 hover:active:scale-95"
+                  className="duration-100 hover:active:scale-95"
                   variant="outline"
                   size="sm"
                   onClick={handleSelectAll}
                 >
                   <CopyCheck className="mr-2 h-4 w-4" />
-                  Marcar Todos
+                  <span className="xs:inline hidden">Marcar Todos</span>
+                  <span className="xs:hidden">Todos</span>
                 </Button>
               </div>
             </CardHeader>
@@ -895,7 +906,7 @@ export default function GastosPage() {
             )}
           </CardContent>
           {essentialExpenses.length > 0 && (
-            <p className="text-muted-foreground ml-6 pb-4 text-xs">
+            <p className="text-muted-foreground ml-6 pb-2 text-xs">
               Crie seus gastos fixos do mês e adicione-os com apenas 1 clique.
             </p>
           )}
