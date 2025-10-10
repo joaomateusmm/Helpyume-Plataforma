@@ -4,11 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CopyCheck,
   CopyX,
-  Filter,
+  Pencil,
   Plus,
   SquareCheck,
   Trash,
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -53,8 +54,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useEssentialIncomes } from "@/hooks/use-essential-incomes";
 import { useTransactions } from "@/hooks/use-transactions";
+import {
+  createEssentialIncome,
+  deleteEssentialIncomes,
+  registerEssentialIncome,
+  updateEssentialIncome,
+} from "@/lib/actions/essential-incomes";
 import {
   createTransaction,
   deleteTransactions,
@@ -77,14 +84,26 @@ type TransactionFormData = z.infer<typeof transactionSchema>;
 export default function GanhosPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSubmittingEssential, setIsSubmittingEssential] = useState(false);
+  const [isRegistering, setIsRegistering] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<{
+    title: string;
+    amount: string;
+    description: string;
+  } | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(
     new Set(),
   );
   const { transactions, isLoading, refetch } = useTransactions();
-  const { user } = useCurrentUser();
-
-  // Debug temporário
-  console.log("Usuário logado no componente:", user);
+  const {
+    essentialIncomes,
+    isLoading: isLoadingEssential,
+    refetch: refetchEssential,
+  } = useEssentialIncomes();
 
   const form = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
@@ -94,6 +113,16 @@ export default function GanhosPage() {
       description: "",
       date: new Date().toISOString().split("T")[0], // Data atual no formato YYYY-MM-DD
       time: new Date().toTimeString().slice(0, 5), // Hora atual no formato HH:MM
+    },
+  });
+
+  // Formulário para ganhos essenciais (sem data e hora)
+  const essentialForm = useForm<TransactionFormData>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      title: "",
+      amount: "",
+      description: "",
     },
   });
 
@@ -111,7 +140,7 @@ export default function GanhosPage() {
   };
 
   const handleSelectAllPage = () => {
-    const currentPageTransactions = transactions.map((t) => t.id);
+    const currentPageTransactions = displayedTransactions.map((t) => t.id);
     setSelectedTransactions(new Set(currentPageTransactions));
     toast.success(`${currentPageTransactions.length} transações selecionadas`);
   };
@@ -128,6 +157,22 @@ export default function GanhosPage() {
     setSelectedTransactions(new Set());
     toast.info("Seleção limpa");
   };
+
+  const handleItemsPerPageChange = (value: string) => {
+    if (value === "Todos") {
+      setItemsPerPage(transactions.length);
+    } else {
+      setItemsPerPage(parseInt(value));
+    }
+    // Limpar seleções ao mudar a visualização
+    setSelectedTransactions(new Set());
+  };
+
+  // Filtrar transações baseado na quantidade selecionada
+  const displayedTransactions =
+    itemsPerPage === transactions.length
+      ? transactions
+      : transactions.slice(0, itemsPerPage);
 
   const handleDeleteSelected = async () => {
     if (selectedTransactions.size === 0) {
@@ -184,18 +229,225 @@ export default function GanhosPage() {
     }
   };
 
+  const onSubmitEssential = async (data: TransactionFormData) => {
+    setIsSubmittingEssential(true);
+
+    try {
+      const result = await createEssentialIncome(data);
+
+      if (result.success) {
+        toast.success("Ganho essencial criado com sucesso!");
+        essentialForm.reset({
+          title: "",
+          amount: "",
+          description: "",
+        });
+        refetchEssential(); // Atualizar a lista de ganhos essenciais
+      } else {
+        toast.error(result.error || "Erro ao criar ganho essencial");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado ao criar ganho essencial");
+      console.error(error);
+    } finally {
+      setIsSubmittingEssential(false);
+    }
+  };
+
+  const handleRegisterEssential = async (essentialIncomeId: string) => {
+    setIsRegistering((prev) => ({ ...prev, [essentialIncomeId]: true }));
+
+    try {
+      const result = await registerEssentialIncome(essentialIncomeId);
+
+      if (result.success) {
+        toast.success("Ganho registrado com sucesso!");
+        refetch(); // Atualizar a lista de transações
+      } else {
+        toast.error(result.error || "Erro ao registrar ganho");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado ao registrar ganho");
+      console.error(error);
+    } finally {
+      setIsRegistering((prev) => ({ ...prev, [essentialIncomeId]: false }));
+    }
+  };
+
+  const handleEditEssential = (essential: {
+    id: string;
+    title: string;
+    amountInCents: number;
+    description?: string | null;
+  }) => {
+    setIsEditing(essential.id);
+    setEditingData({
+      title: essential.title,
+      amount: (essential.amountInCents / 100).toFixed(2),
+      description: essential.description || "",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(null);
+    setEditingData(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!isEditing || !editingData) return;
+
+    try {
+      const result = await updateEssentialIncome(isEditing, editingData);
+
+      if (result.success) {
+        toast.success("Ganho essencial atualizado com sucesso!");
+        setIsEditing(null);
+        setEditingData(null);
+        refetchEssential();
+      } else {
+        toast.error(result.error || "Erro ao atualizar ganho essencial");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado ao atualizar ganho essencial");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteEssential = async (essentialIncomeId: string) => {
+    try {
+      const result = await deleteEssentialIncomes([essentialIncomeId]);
+
+      if (result.success) {
+        toast.success("Ganho essencial excluído com sucesso!");
+        refetchEssential();
+      } else {
+        toast.error(result.error || "Erro ao excluir ganho essencial");
+      }
+    } catch (error) {
+      toast.error("Erro inesperado ao excluir ganho essencial");
+      console.error(error);
+    }
+  };
+
   return (
     <div className="p-6">
       <PageHeader title="Ganhos">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className="animate-gradient-x ml-1 bg-gradient-to-r from-pink-700/70 to-purple-800/70 py-4 text-white duration-300 hover:scale-[1.04]"
+              className="ml-1 border duration-300 hover:scale-[1.04]"
+              size="sm"
+              variant="ghost"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Criar Ganho Essencial
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="max-w-md">
+            <Form {...essentialForm}>
+              <form
+                onSubmit={essentialForm.handleSubmit(onSubmitEssential)}
+                className="space-y-6"
+              >
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Criar Ganho Essencial</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Crie um template de ganho para adicionar rapidamente ao seu
+                    histórico.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <div className="space-y-4">
+                  {/* Campo Título */}
+                  <FormField
+                    control={essentialForm.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Título *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ex: Salário Mensal, Freelance Fixo..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Valor */}
+                  <FormField
+                    control={essentialForm.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Valor (R$) *</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0,00"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Digite o valor sem o sinal de R$
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo Descrição */}
+                  <FormField
+                    control={essentialForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição (opcional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Detalhes sobre o ganho essencial..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    type="button"
+                    disabled={isSubmittingEssential}
+                  >
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    type="submit"
+                    disabled={isSubmittingEssential}
+                  >
+                    {isSubmittingEssential
+                      ? "Salvando..."
+                      : "Criar Ganho Essencial"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </form>
+            </Form>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              className="animate-gradient-x ml-1 bg-gradient-to-r from-green-600/70 to-green-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
               size="sm"
               variant="default"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Nova Transação
+              Novo Ganho
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="max-w-md">
@@ -209,7 +461,8 @@ export default function GanhosPage() {
                     Adicionar Nova Transação de Ganho
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Preencha os dados abaixo para registrar uma nova receita.
+                    Preencha os dados abaixo para registrar uma nova receita, o
+                    valor aqui sempre será positivo.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
@@ -327,76 +580,87 @@ export default function GanhosPage() {
 
       <div className="space-y-6">
         <Card>
-          <CardHeader className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <CardTitle>Histórico dos Ganhos</CardTitle>
-              {selectedTransactions.size > 0 && (
-                <span className="text-muted-foreground text-sm">
-                  ({selectedTransactions.size} selecionada
-                  {selectedTransactions.size !== 1 ? "s" : ""})
-                </span>
-              )}
-            </div>
-            <div>
-              {selectedTransactions.size > 0 && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="mx-1 border bg-red-700 duration-100 hover:active:scale-95"
-                      variant="destructive"
-                      size="sm"
-                      disabled={isDeleting}
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      {isDeleting
-                        ? "Excluindo..."
-                        : `Excluir (${selectedTransactions.size})`}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Tem certeza que deseja excluir{" "}
-                        {selectedTransactions.size} transação(ões)
-                        selecionada(s)? Esta ação não pode ser desfeita.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isDeleting}>
-                        Cancelar
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeleteSelected}
+          {transactions.length > 0 ? (
+            <CardHeader className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <CardTitle>
+                  Histórico dos Ganhos{" "}
+                  <a className="text-muted-foreground text-sm">
+                    ({transactions.length})
+                  </a>
+                </CardTitle>
+                {selectedTransactions.size > 0 && (
+                  <span className="text-muted-foreground text-sm">
+                    ({selectedTransactions.size} selecionada
+                    {selectedTransactions.size !== 1 ? "s" : ""})
+                  </span>
+                )}
+              </div>
+              <div>
+                {selectedTransactions.size > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        className="mx-1 border bg-red-700 duration-100 hover:active:scale-95"
+                        variant="destructive"
+                        size="sm"
                         disabled={isDeleting}
-                        className="border bg-white hover:bg-gray-200"
                       >
-                        {isDeleting ? "Excluindo..." : "Sim, Excluir"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-              <Button
-                className="mx-1 duration-100 hover:active:scale-95"
-                variant="outline"
-                size="sm"
-                onClick={handleSelectAllPage}
-              >
-                <SquareCheck className="mr-2 h-4 w-4" />
-                Marcar Página
-              </Button>
-              <Button
-                className="mx-1 duration-100 hover:active:scale-95"
-                variant="outline"
-                size="sm"
-                onClick={handleSelectAll}
-              >
-                <CopyCheck className="mr-2 h-4 w-4" />
-                Marcar Todos
-              </Button>
-            </div>
-          </CardHeader>
+                        <Trash className="mr-2 h-4 w-4" />
+                        {isDeleting
+                          ? "Excluindo..."
+                          : `Excluir (${selectedTransactions.size})`}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja excluir{" "}
+                          {selectedTransactions.size} transação(ões)
+                          selecionada(s)? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>
+                          Cancelar
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteSelected}
+                          disabled={isDeleting}
+                          className="border bg-white hover:bg-gray-200"
+                        >
+                          {isDeleting ? "Excluindo..." : "Sim, Excluir"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+                <Button
+                  className="mx-1 duration-100 hover:active:scale-95"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAllPage}
+                >
+                  <SquareCheck className="mr-2 h-4 w-4" />
+                  Marcar Página
+                </Button>
+                <Button
+                  className="mx-1 duration-100 hover:active:scale-95"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAll}
+                >
+                  <CopyCheck className="mr-2 h-4 w-4" />
+                  Marcar Todos
+                </Button>
+              </div>
+            </CardHeader>
+          ) : (
+            <CardHeader>
+              <CardTitle>Histórico dos Ganhos</CardTitle>
+            </CardHeader>
+          )}
 
           <CardContent>
             {isLoading ? (
@@ -411,7 +675,7 @@ export default function GanhosPage() {
                 type="single"
                 collapsible
               >
-                {transactions.map((transaction, index) => (
+                {displayedTransactions.map((transaction, index) => (
                   <AccordionItem key={transaction.id} value={`item-${index}`}>
                     <AccordionTrigger>
                       <Checkbox
@@ -423,7 +687,7 @@ export default function GanhosPage() {
                       <div className="flex w-full justify-between">
                         <p>{transaction.title}</p>
                         <p className="font-semibold text-green-400">
-                          R${" "}
+                          R$ +
                           {(transaction.amountInCents / 100)
                             .toFixed(2)
                             .replace(".", ",")}
@@ -451,7 +715,16 @@ export default function GanhosPage() {
                 ))}
               </Accordion>
             ) : (
-              <div className="py-8 text-center">
+              <div className="text-center">
+                <div className="my-6 flex justify-center">
+                  <Image
+                    src="/assets/illustration.svg"
+                    alt="Ilustração boneco de estado vazio"
+                    width={300}
+                    height={300}
+                    className="opacity-50"
+                  />
+                </div>
                 <p className="text-muted-foreground">
                   Nenhuma transação de ganho encontrada.
                 </p>
@@ -461,44 +734,247 @@ export default function GanhosPage() {
                 </p>
               </div>
             )}
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-muted-foreground text-xs">
-                Visualize e gerencie todas as suas transações de ganhos em um só
-                lugar.
-              </p>
-              <div className="flex items-center gap-2">
-                {selectedTransactions.size > 0 && (
-                  <Button
-                    className="px-3 py-1 duration-100 hover:active:scale-95"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClearSelection}
-                  >
-                    <CopyX className="h-4 w-4" />
-                  </Button>
-                )}
-                <div className="rounded-md border bg-[#0A0A0A] px-2 py-1">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="border-none outline-none focus:border-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
-                      10
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuLabel>Vizualizar</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>10</DropdownMenuItem>
-                      <DropdownMenuItem>20</DropdownMenuItem>
-                      <DropdownMenuItem>30</DropdownMenuItem>
-                      <DropdownMenuItem>Todos</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {transactions.length > 0 && (
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-muted-foreground text-xs">
+                  <p>
+                    Visualize e gerencie todas as suas transações de ganhos em
+                    um só lugar.
+                  </p>
+                  <p className="mt-1">
+                    Exibindo {displayedTransactions.length} de{" "}
+                    {transactions.length} transações
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedTransactions.size > 0 && (
+                    <Button
+                      className="px-3 py-1 duration-100 hover:active:scale-95"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearSelection}
+                    >
+                      <CopyX className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <div className="rounded-md border bg-[#0A0A0A] px-2 py-1">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="border-none outline-none focus:border-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
+                        {itemsPerPage === transactions.length
+                          ? "Todos"
+                          : itemsPerPage}
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuLabel>Vizualizar</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleItemsPerPageChange("10")}
+                        >
+                          10
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleItemsPerPageChange("20")}
+                        >
+                          20
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleItemsPerPageChange("30")}
+                        >
+                          30
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleItemsPerPageChange("Todos")}
+                        >
+                          Todos
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Aqui você pode adicionar mais componentes para a página de ganhos */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Seus Ganhos Essenciais</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoadingEssential ? (
+              <div className="flex gap-4">
+                <div className="bg-muted h-24 w-[160px] animate-pulse rounded-lg" />
+                <div className="bg-muted h-24 w-[160px] animate-pulse rounded-lg" />
+              </div>
+            ) : essentialIncomes.length > 0 ? (
+              <div className="flex flex-wrap gap-4">
+                {essentialIncomes.map((essential) => (
+                  <div
+                    key={essential.id}
+                    className="group relative flex h-auto w-[180px] flex-col items-center justify-between gap-3 rounded-lg border p-3 transition-all hover:shadow-md"
+                  >
+                    {/* Botões de ação no canto superior direito */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Button
+                        onClick={() => handleEditEssential(essential)}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-gray-100/10"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-gray-100/10"
+                          >
+                            <Trash className="h-3 w-3" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Confirmar Exclusão
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir o ganho essencial
+                              &quot;{essential.title}&quot;? Esta ação não pode
+                              ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleDeleteEssential(essential.id)
+                              }
+                              className="bg-white hover:bg-gray-200"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+
+                    {/* Conteúdo do card */}
+                    <div className="flex flex-col items-center">
+                      <p className="text-center font-medium">
+                        {essential.title}
+                      </p>
+                      <p className="text-muted-foreground text-center text-xs">
+                        {essential.description || "Ganho essencial"}
+                      </p>
+                      <p className="font-semibold text-green-400">
+                        R${" "}
+                        {(essential.amountInCents / 100)
+                          .toFixed(2)
+                          .replace(".", ",")}
+                      </p>
+                    </div>
+
+                    {/* Botão de registrar */}
+                    <Button
+                      onClick={() => handleRegisterEssential(essential.id)}
+                      disabled={isRegistering[essential.id]}
+                      size="sm"
+                      className="w-28"
+                    >
+                      {isRegistering[essential.id] ? (
+                        "Registrando..."
+                      ) : (
+                        <>
+                          <Plus className="mr-1 h-3 w-3" /> Registrar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-3 text-center">
+                <p className="text-muted-foreground">
+                  Nenhum ganho essencial criado ainda.
+                </p>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  Crie seu primeiro ganho essencial usando o botão acima.
+                </p>
+              </div>
+            )}
+          </CardContent>
+          {essentialIncomes.length > 0 && (
+            <p className="text-muted-foreground ml-6 pb-4 text-xs">
+              Crie seus ganhos fixos do mês e adicione-os com apenas 1 clique.
+            </p>
+          )}
+        </Card>
       </div>
+
+      {/* Modal de Edição */}
+      <AlertDialog open={!!isEditing} onOpenChange={handleCancelEdit}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Editar Ganho Essencial</AlertDialogTitle>
+            <AlertDialogDescription>
+              Atualize as informações do seu ganho essencial.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {editingData && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Título *</label>
+                <Input
+                  value={editingData.title}
+                  onChange={(e) =>
+                    setEditingData({ ...editingData, title: e.target.value })
+                  }
+                  placeholder="Ex: Salário Mensal, Freelance Fixo..."
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Valor (R$) *</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editingData.amount}
+                  onChange={(e) =>
+                    setEditingData({ ...editingData, amount: e.target.value })
+                  }
+                  placeholder="0,00"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Descrição</label>
+                <Input
+                  value={editingData.description}
+                  onChange={(e) =>
+                    setEditingData({
+                      ...editingData,
+                      description: e.target.value,
+                    })
+                  }
+                  placeholder="Detalhes sobre o ganho essencial..."
+                />
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelEdit}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleSaveEdit}>
+              Salvar Alterações
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

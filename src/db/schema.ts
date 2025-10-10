@@ -68,14 +68,14 @@ export const verification = pgTable("verification", {
   ),
 });
 
-// Tabela de Transações
+// Tabela de Transações (Ganhos)
 export const transaction = pgTable("transaction", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (pode ser negativo ou positivo)
-  title: text("title").notNull(), // Título da transação (ex: "Compra no Supermercado")
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo para ganhos)
+  title: text("title").notNull(), // Título da transação (ex: "Freelance", "Salário")
   description: text("description"), // Descrição detalhada (opcional)
   createdAt: timestamp("created_at")
     .notNull()
@@ -86,9 +86,66 @@ export const transaction = pgTable("transaction", {
     .$defaultFn(() => new Date()),
 });
 
+// Tabela de Gastos
+export const expense = pgTable("expense", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo, mas representa gasto)
+  title: text("title").notNull(), // Título do gasto (ex: "Compra no Supermercado", "Conta de Luz")
+  description: text("description"), // Descrição detalhada (opcional)
+  createdAt: timestamp("created_at")
+    .notNull()
+    .$defaultFn(() => new Date()), // Data e hora automática
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdateFn(() => new Date())
+    .$defaultFn(() => new Date()),
+});
+
+// Tabela de Ganhos Essenciais (Templates)
+export const essentialIncome = pgTable("essential_income", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo)
+  title: text("title").notNull(), // Título do ganho essencial (ex: "Salário Mensal", "Freelance Fixo")
+  description: text("description"), // Descrição detalhada (opcional)
+  createdAt: timestamp("created_at")
+    .notNull()
+    .$defaultFn(() => new Date()), // Data de criação do template
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdateFn(() => new Date())
+    .$defaultFn(() => new Date()),
+});
+
+// Tabela de Gastos Essenciais (Templates)
+export const essentialExpense = pgTable("essential_expense", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo, mas representa gasto)
+  title: text("title").notNull(), // Título do gasto essencial (ex: "Conta de Luz", "Aluguel")
+  description: text("description"), // Descrição detalhada (opcional)
+  createdAt: timestamp("created_at")
+    .notNull()
+    .$defaultFn(() => new Date()), // Data de criação do template
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdateFn(() => new Date())
+    .$defaultFn(() => new Date()),
+});
+
 // Relacionamentos
 export const userRelations = relations(user, ({ many }) => ({
   transactions: many(transaction),
+  expenses: many(expense),
+  essentialIncomes: many(essentialIncome),
+  essentialExpenses: many(essentialExpense),
 }));
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
@@ -97,3 +154,30 @@ export const transactionRelations = relations(transaction, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const expenseRelations = relations(expense, ({ one }) => ({
+  user: one(user, {
+    fields: [expense.userId],
+    references: [user.id],
+  }),
+}));
+
+export const essentialIncomeRelations = relations(
+  essentialIncome,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [essentialIncome.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const essentialExpenseRelations = relations(
+  essentialExpense,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [essentialExpense.userId],
+      references: [user.id],
+    }),
+  }),
+);
