@@ -10,6 +10,7 @@ import {
   Trash,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { useEssentialIncomes } from "@/hooks/use-essential-incomes";
 import { useTransactions } from "@/hooks/use-transactions";
 import {
@@ -82,6 +84,9 @@ const transactionSchema = z.object({
 type TransactionFormData = z.infer<typeof transactionSchema>;
 
 export default function GanhosPage() {
+  const router = useRouter();
+  const { user } = useCurrentUser();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSubmittingEssential, setIsSubmittingEssential] = useState(false);
@@ -329,6 +334,16 @@ export default function GanhosPage() {
     }
   };
 
+  // Função para verificar autenticação antes de abrir formulário
+  const checkAuthAndOpenForm = () => {
+    if (!user) {
+      toast.error("Você precisa estar logado para criar transações");
+      router.push("/authentication");
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className="p-6">
       <PageHeader title="Ganhos" />
@@ -340,6 +355,9 @@ export default function GanhosPage() {
               className="w-auto border duration-300 hover:scale-[1.04]"
               size="sm"
               variant="ghost"
+              onClick={() => {
+                if (!checkAuthAndOpenForm()) return;
+              }}
             >
               <Plus className="mr-1 h-4 w-4" />
               <span className="xs:inline hidden">Criar Ganho Essencial</span>
@@ -448,6 +466,9 @@ export default function GanhosPage() {
               className="animate-gradient-x w-auto bg-gradient-to-r from-green-600/70 to-green-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
               size="sm"
               variant="default"
+              onClick={() => {
+                if (!checkAuthAndOpenForm()) return;
+              }}
             >
               <Plus className="mr-1 h-4 w-4" />
               <span className="xs:inline hidden">Novo Ganho</span>
@@ -639,7 +660,7 @@ export default function GanhosPage() {
                         <AlertDialogAction
                           onClick={handleDeleteSelected}
                           disabled={isDeleting}
-                          className="border bg-white hover:bg-gray-200"
+                          className="bg-destructive hover:bg-destructive/90 text-white shadow-md"
                         >
                           {isDeleting ? "Excluindo..." : "Sim, Excluir"}
                         </AlertDialogAction>
@@ -699,7 +720,7 @@ export default function GanhosPage() {
                       />
                       <div className="flex w-full justify-between">
                         <p>{transaction.title}</p>
-                        <p className="font-semibold text-green-400">
+                        <p className="font-semibold text-green-700 dark:text-green-400">
                           R$ +
                           {(transaction.amountInCents / 100)
                             .toFixed(2)
@@ -863,7 +884,7 @@ export default function GanhosPage() {
                               onClick={() =>
                                 handleDeleteEssential(essential.id)
                               }
-                              className="bg-white hover:bg-gray-200"
+                              className="bg-destructive hover:bg-destructive/90 text-white"
                             >
                               Excluir
                             </AlertDialogAction>
@@ -880,7 +901,7 @@ export default function GanhosPage() {
                       <p className="text-muted-foreground text-center text-xs">
                         {essential.description || "Ganho essencial"}
                       </p>
-                      <p className="font-semibold text-green-400">
+                      <p className="font-semibold text-green-700 dark:text-green-400">
                         R${" "}
                         {(essential.amountInCents / 100)
                           .toFixed(2)

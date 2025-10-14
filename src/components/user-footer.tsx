@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogIn, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -26,10 +26,14 @@ export function UserFooter() {
     }
   };
 
+  const handleLogin = () => {
+    router.push("/authentication");
+  };
+
   if (isLoading) {
     return (
-      <div className="bg-card flex flex-row items-center gap-3 rounded-lg p-3">
-        <Skeleton className="h-10 w-10 rounded-full" />
+      <div className="bg-sidebar-accent border-sidebar-border flex flex-row items-center gap-3 rounded-lg border p-3">
+        <Skeleton className="h-10 w-10 rounded-lg" />
         <div className="flex flex-col gap-1 overflow-hidden">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />
@@ -40,19 +44,28 @@ export function UserFooter() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-3 p-3">
-        <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-          ?
-        </div>
-        <div className="flex flex-col overflow-hidden">
-          <span className="truncate text-sm font-medium">
-            Usuário não logado
-          </span>
-          <span className="text-muted-foreground truncate text-xs">
-            Faça login para continuar
-          </span>
-        </div>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="bg-sidebar-accent hover:bg-sidebar-accent/80 border-sidebar-border flex cursor-pointer flex-row items-center gap-3 rounded-lg border p-2 duration-200">
+            <div className="bg-sidebar-primary/10 border-sidebar-primary/20 flex h-10 w-10 animate-pulse items-center justify-center rounded-lg border text-sm font-semibold"></div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-sidebar-foreground truncate text-sm font-medium">
+                Entre ou Crie sua Conta
+              </span>
+              <span className="text-sidebar-foreground/70 truncate text-xs">
+                Clique para fazer login
+              </span>
+            </div>
+          </div>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onClick={handleLogin}>
+            <LogIn className="mr-2 h-4 w-4" />
+            Entrar
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
@@ -68,16 +81,18 @@ export function UserFooter() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="bg-card hover:bg-accent flex cursor-pointer flex-row items-center gap-3 rounded-lg p-2 duration-200">
+        <div className="bg-sidebar-accent hover:bg-sidebar-accent flex cursor-pointer flex-row items-center gap-3 rounded-lg p-2 duration-200">
           {/* Avatar com iniciais */}
-          <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-300 text-sm font-semibold text-black shadow-sm">
             {getInitials(user.name)}
           </div>
 
           {/* Informações do usuário */}
           <div className="flex flex-col overflow-hidden">
-            <span className="truncate text-sm font-medium">{user.name}</span>
-            <span className="text-muted-foreground truncate text-xs">
+            <span className="text-sidebar-foreground truncate text-sm font-medium">
+              {user.name}
+            </span>
+            <span className="text-sidebar-foreground/70 truncate text-xs">
               {user.email}
             </span>
           </div>
@@ -85,7 +100,7 @@ export function UserFooter() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onClick={handleLogout} className="text-white">
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           Sair
         </DropdownMenuItem>

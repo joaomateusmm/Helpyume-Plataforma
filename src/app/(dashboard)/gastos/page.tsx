@@ -10,6 +10,7 @@ import {
   Trash,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -54,6 +55,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { useEssentialExpenses } from "@/hooks/use-essential-expenses";
 import { useExpenses } from "@/hooks/use-expenses";
 import {
@@ -79,6 +81,9 @@ const transactionSchema = z.object({
 type TransactionFormData = z.infer<typeof transactionSchema>;
 
 export default function GastosPage() {
+  const router = useRouter();
+  const { user } = useCurrentUser();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSubmittingEssential, setIsSubmittingEssential] = useState(false);
@@ -324,6 +329,16 @@ export default function GastosPage() {
     }
   };
 
+  // Função para verificar autenticação antes de abrir formulário
+  const checkAuthAndOpenForm = () => {
+    if (!user) {
+      toast.error("Você precisa estar logado para criar gastos");
+      router.push("/authentication");
+      return false;
+    }
+    return true;
+  };
+
   return (
     <div className="p-6">
       <PageHeader title="Gastos" />
@@ -335,6 +350,9 @@ export default function GastosPage() {
               className="w-auto border duration-300 hover:scale-[1.04]"
               size="sm"
               variant="ghost"
+              onClick={() => {
+                if (!checkAuthAndOpenForm()) return;
+              }}
             >
               <Plus className="mr-1 h-4 w-4" />
               <span className="xs:inline hidden">Criar Gasto Essencial</span>
@@ -443,6 +461,9 @@ export default function GastosPage() {
               className="animate-gradient-x w-auto bg-gradient-to-r from-red-600/70 to-red-900/70 py-4 text-white duration-300 hover:scale-[1.04]"
               size="sm"
               variant="default"
+              onClick={() => {
+                if (!checkAuthAndOpenForm()) return;
+              }}
             >
               <Plus className="mr-1 h-4 w-4" />
               <span className="xs:inline hidden">Novo Gasto</span>
@@ -624,13 +645,16 @@ export default function GastosPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel disabled={isDeleting}>
+                        <AlertDialogCancel
+                          className="shadow-md"
+                          disabled={isDeleting}
+                        >
                           Cancelar
                         </AlertDialogCancel>
                         <AlertDialogAction
                           onClick={handleDeleteSelected}
                           disabled={isDeleting}
-                          className="border bg-white hover:bg-gray-200"
+                          className="bg-destructive hover:bg-destructive/90 text-white shadow-md"
                         >
                           {isDeleting ? "Excluindo..." : "Sim, Excluir"}
                         </AlertDialogAction>
@@ -688,7 +712,7 @@ export default function GastosPage() {
                       />
                       <div className="flex w-full justify-between">
                         <p>{expense.title}</p>
-                        <p className="font-semibold text-red-400">
+                        <p className="font-semibold text-red-700 dark:text-red-400">
                           R$ -
                           {(expense.amountInCents / 100)
                             .toFixed(2)
@@ -868,7 +892,7 @@ export default function GastosPage() {
                       <p className="text-muted-foreground text-center text-xs">
                         {essential.description || "Gasto essencial"}
                       </p>
-                      <p className="font-semibold text-red-400">
+                      <p className="font-semibold text-red-700 dark:text-red-400">
                         R${" "}
                         {(essential.amountInCents / 100)
                           .toFixed(2)

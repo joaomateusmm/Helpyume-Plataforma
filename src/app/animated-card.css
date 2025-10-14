@@ -1,0 +1,246 @@
+/* Animação de Background para Card de Investimentos */
+.animated-investment-card {
+  position: relative;
+  background: url("/bg-cards/mesh-366.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.animated-investment-card::before,
+.animated-investment-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.animated-investment-card::before {
+  background-image: url("/bg-cards/mesh-445.png");
+  animation: fadeInOutFirst 6s infinite;
+}
+
+.animated-investment-card::after {
+  background-image: url("/bg-cards/mesh-837.png");
+  animation: fadeInOutSecond 6s infinite;
+  animation-delay: 2s;
+}
+
+/* Camadas adicionais usando elementos filhos */
+.animated-investment-card .bg-layer-1,
+.animated-investment-card .bg-layer-2,
+.animated-investment-card .bg-layer-3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.animated-investment-card .bg-layer-1 {
+  background-image: url("/bg-cards/mesh-833.png");
+  animation: fadeInOutThird 6s infinite;
+  animation-delay: 4s;
+}
+
+.animated-investment-card .bg-layer-2 {
+  background-image: url("/bg-cards/mesh-535.png");
+  animation: fadeInOutFourth 6s infinite;
+  animation-delay: 1s;
+}
+
+.animated-investment-card .bg-layer-3 {
+  background-image: url("/bg-cards/mesh-495.png");
+  animation: fadeInOutFifth 6s infinite;
+  animation-delay: 3s;
+}
+
+/* Garantir que o conteúdo fique acima das camadas de background */
+.animated-investment-card > * {
+  position: relative;
+  z-index: 10;
+}
+
+/* Animações de fade-in/fade-out */
+@keyframes fadeInOutFirst {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  33.33%,
+  58.33% {
+    opacity: 0.7;
+  }
+  66.67%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOutSecond {
+  0%,
+  16.67% {
+    opacity: 0;
+  }
+  25%,
+  50% {
+    opacity: 0.8;
+  }
+  58.33%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOutThird {
+  0%,
+  58.33% {
+    opacity: 0;
+  }
+  66.67%,
+  91.67% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOutFourth {
+  0%,
+  8.33% {
+    opacity: 0;
+  }
+  16.67%,
+  41.67% {
+    opacity: 0.5;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOutFifth {
+  0%,
+  41.67% {
+    opacity: 0;
+  }
+  50%,
+  75% {
+    opacity: 0.7;
+  }
+  83.33%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Efeito hover - pausa a animação */
+.animated-investment-card:hover::before,
+.animated-investment-card:hover::after,
+.animated-investment-card:hover .bg-layer-1,
+.animated-investment-card:hover .bg-layer-2,
+.animated-investment-card:hover .bg-layer-3 {
+  animation-play-state: paused;
+}
+
+/* Responsividade - reduzir intensidade em telas menores */
+@media (max-width: 768px) {
+  .animated-investment-card::before,
+  .animated-investment-card::after,
+  .animated-investment-card .bg-layer-1,
+  .animated-investment-card .bg-layer-2,
+  .animated-investment-card .bg-layer-3 {
+    opacity: 0.3;
+  }
+
+  @keyframes fadeInOutFirst {
+    0%,
+    25% {
+      opacity: 0;
+    }
+    33.33%,
+    58.33% {
+      opacity: 0.4;
+    }
+    66.67%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeInOutSecond {
+    0%,
+    16.67% {
+      opacity: 0;
+    }
+    25%,
+    50% {
+      opacity: 0.5;
+    }
+    58.33%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeInOutThird {
+    0%,
+    58.33% {
+      opacity: 0;
+    }
+    66.67%,
+    91.67% {
+      opacity: 0.3;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeInOutFourth {
+    0%,
+    8.33% {
+      opacity: 0;
+    }
+    16.67%,
+    41.67% {
+      opacity: 0.3;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeInOutFifth {
+    0%,
+    41.67% {
+      opacity: 0;
+    }
+    50%,
+    75% {
+      opacity: 0.4;
+    }
+    83.33%,
+    100% {
+      opacity: 0;
+    }
+  }
+}

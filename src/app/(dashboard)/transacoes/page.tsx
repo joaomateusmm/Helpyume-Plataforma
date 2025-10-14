@@ -233,7 +233,7 @@ export default function TransacoesPage() {
                 ))}
               </Accordion>
             ) : (
-              <div className="py-8 text-center">
+              <div className="py-12 text-center">
                 <div className="my-6 flex justify-center">
                   <Image
                     src="/assets/illustration.svg"
@@ -243,12 +243,20 @@ export default function TransacoesPage() {
                     className="opacity-50"
                   />
                 </div>
-                <p className="text-muted-foreground">
-                  Nenhuma transação encontrada.
+                <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+                  Nenhuma transação encontrada
+                </h3>
+                <p className="text-muted-foreground mb-4 text-sm">
+                  {searchTerm
+                    ? `Não encontramos transações que correspondam a "${searchTerm}"`
+                    : "Suas transações de ganhos e gastos aparecerão aqui após serem criadas."}
                 </p>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  Suas transações de ganhos e gastos aparecerão aqui.
-                </p>
+                {!searchTerm && (
+                  <p className="text-muted-foreground text-xs">
+                    Comece criando uma transação nas páginas de Ganhos ou
+                    Gastos.
+                  </p>
+                )}
               </div>
             )}
             {filteredTransactions.length > 0 && (

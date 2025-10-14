@@ -1,11 +1,9 @@
 import {
-  BellRing,
   ChartCandlestick,
   CircleFadingPlus,
   CircleMinus,
   LayoutDashboard,
   NotebookPen,
-  Palette,
   Settings,
 } from "lucide-react";
 
@@ -55,16 +53,6 @@ const items1 = [
 ];
 
 const items2 = [
-  {
-    title: "Temas",
-    url: "/temas",
-    icon: Palette,
-  },
-  {
-    title: "Notificações",
-    url: "/notificacoes",
-    icon: BellRing,
-  },
   {
     title: "Configurações",
     url: "/configuracoes",
