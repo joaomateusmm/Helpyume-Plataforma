@@ -93,11 +93,7 @@ export default function TransacoesPage() {
                 R${" "}
                 {(
                   transactions.reduce(
-                    (total, t) =>
-                      total +
-                      (t.type === "income"
-                        ? t.amountInCents
-                        : -t.amountInCents),
+                    (total, t) => total + Math.abs(t.amountInCents),
                     0,
                   ) / 100
                 )
@@ -105,7 +101,7 @@ export default function TransacoesPage() {
                   .replace(".", ",")}
               </p>
               <p className="text-muted-foreground text-xs">
-                Saldo líquido de todas as transações
+                Total de todas as movimentações
               </p>
             </CardContent>
           </Card>

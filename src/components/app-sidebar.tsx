@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ChartCandlestick,
   CircleFadingPlus,
@@ -6,7 +8,11 @@ import {
   NotebookPen,
   Settings,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
+import { useTheme } from "@/components/theme-provider";
 import {
   Sidebar,
   SidebarContent,
@@ -61,10 +67,27 @@ const items2 = [
 ];
 
 export function AppSidebar() {
+  const { theme } = useTheme();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Determinar qual logo usar baseado no tema
+  const logoSrc =
+    theme === "light" ? "/assets/logo-dark.svg" : "/assets/logo-light.svg";
+
   return (
     <Sidebar>
-      <SidebarHeader className="px-3 py-4 text-lg font-semibold">
-        Helpyume
+      <SidebarHeader className="p-4 text-lg font-semibold">
+        <Link href="/">
+          {isHydrated ? (
+            <Image src={logoSrc} alt="Logo Helpyume" width={170} height={170} />
+          ) : (
+            <div className="h-[170px] w-[170px]" />
+          )}
+        </Link>
       </SidebarHeader>
       <Separator />
       <SidebarContent>

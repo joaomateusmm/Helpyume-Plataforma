@@ -5,27 +5,22 @@ import "../animated-card.css";
 import {
   BanknoteArrowDown,
   BanknoteArrowUp,
-  Calendar,
   ChartCandlestick,
   FileText,
   NotebookPen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { ExpenseIncomeChart } from "@/components/charts/expense-income-chart";
+import { TransactionsChart } from "@/components/charts/transactions-chart";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useAllTransactions } from "@/hooks/use-all-transactions";
+import { useInvestments } from "@/hooks/use-investments";
 
 export default function Home() {
   const { transactions, isLoading } = useAllTransactions();
+  const { investments, isLoading: isLoadingInvestments } = useInvestments();
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -43,6 +38,9 @@ export default function Home() {
       .filter((t) => t.type === "income")
       .reduce((total, t) => total + t.amountInCents, 0) / 100;
 
+  const totalInvestimentos =
+    investments.reduce((total, inv) => total + inv.amountInCents, 0) / 100;
+
   const totalTransacoes = transactions.length;
 
   // Calcular saldo atual (Ganhos - Gastos)
@@ -52,7 +50,7 @@ export default function Home() {
   const formatCurrency = (value: number) =>
     `R$ ${value.toFixed(2).replace(".", ",")}`;
 
-  if (isLoading || !isHydrated) {
+  if (isLoading || isLoadingInvestments || !isHydrated) {
     return (
       <div className="p-6">
         <PageHeader title="Dashboard">
@@ -85,7 +83,7 @@ export default function Home() {
   return (
     <div className="p-6">
       <PageHeader title="Dashboard">
-        <div className="bg-card flex h-8 w-auto items-center justify-center rounded-md border px-3 text-sm font-medium shadow-sm">
+        {/* <div className="bg-card flex h-8 w-auto items-center justify-center rounded-md border px-3 text-sm font-medium shadow-sm">
           <DropdownMenu>
             <DropdownMenuTrigger className="flex w-auto items-center">
               <Calendar className="mr-2 h-4 w-4" />
@@ -100,11 +98,11 @@ export default function Home() {
               <DropdownMenuItem>Último Ano</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-        <Button variant="outline" size="sm">
+        </div> */}
+        {/* <Button variant="outline" size="sm">
           <FileText className="h-4 w-4" />
           Relatórios
-        </Button>
+        </Button> */}
         <div className="bg-card flex h-8 items-center justify-center rounded-md border px-3 text-sm font-medium shadow-sm">
           Saldo Atual:{" "}
           <span
@@ -127,10 +125,10 @@ export default function Home() {
               <ChartCandlestick />
             </div>
             <div>
-              <p className="text-muted-foreground text-sm">
-                Total de Investidos
+              <p className="text-muted-foreground text-sm">Total Investidos</p>
+              <p className="animate-gradient-x bg-gradient-to-r from-blue-600/70 to-blue-900/70 bg-clip-text text-3xl font-bold text-transparent">
+                {formatCurrency(totalInvestimentos)}
               </p>
-              <p className="text-foreground text-3xl font-bold">R$ 0,00</p>
               <p className="text-muted-foreground text-xs">
                 Essa é a soma de tudo que você investiu até agora.
               </p>
@@ -143,7 +141,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-muted-foreground text-sm">Total de Gastos</p>
-              <p className="text-3xl font-bold text-red-700 dark:text-red-400">
+              <p className="animate-gradient-x bg-gradient-to-r from-red-600/80 to-red-900/80 bg-clip-text text-3xl font-bold text-transparent">
                 {formatCurrency(totalGastos)}
               </p>
               <p className="text-muted-foreground text-xs">
@@ -158,7 +156,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-muted-foreground text-sm">Total de Ganhos</p>
-              <p className="text-3xl font-bold text-green-700 dark:text-green-400">
+              <p className="animate-gradient-x bg-gradient-to-r from-green-600/70 to-green-900/70 bg-clip-text text-3xl font-bold text-transparent">
                 {formatCurrency(totalGanhos)}
               </p>
               <p className="text-muted-foreground text-xs">
@@ -175,7 +173,7 @@ export default function Home() {
               <p className="text-muted-foreground text-sm">
                 Total de Transações
               </p>
-              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-300">
+              <p className="text-3xl font-bold text-black dark:text-white">
                 {totalTransacoes}
               </p>
               <p className="text-muted-foreground text-xs">
@@ -183,6 +181,11 @@ export default function Home() {
               </p>
             </div>
           </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <ExpenseIncomeChart />
+
+          <TransactionsChart />
         </div>
       </div>
     </div>

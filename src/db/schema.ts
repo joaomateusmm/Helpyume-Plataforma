@@ -140,12 +140,50 @@ export const essentialExpense = pgTable("essential_expense", {
     .$defaultFn(() => new Date()),
 });
 
+// Tabela de Investimentos
+export const investment = pgTable("investment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo)
+  title: text("title").notNull(), // Título do investimento
+  description: text("description"), // Descrição detalhada (opcional)
+  createdAt: timestamp("created_at")
+    .notNull()
+    .$defaultFn(() => new Date()), // Data e hora automática
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdateFn(() => new Date())
+    .$defaultFn(() => new Date()),
+});
+
+// Tabela de Investimentos Essenciais (Templates)
+export const essentialInvestment = pgTable("essential_investment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  amountInCents: integer("amount_in_cents").notNull(), // Valor em centavos (sempre positivo)
+  title: text("title").notNull(), // Título do investimento essencial (ex: "Previdência Privada", "Tesouro Direto")
+  description: text("description"), // Descrição detalhada (opcional)
+  createdAt: timestamp("created_at")
+    .notNull()
+    .$defaultFn(() => new Date()), // Data de criação do template
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .$onUpdateFn(() => new Date())
+    .$defaultFn(() => new Date()),
+});
+
 // Relacionamentos
 export const userRelations = relations(user, ({ many }) => ({
   transactions: many(transaction),
   expenses: many(expense),
   essentialIncomes: many(essentialIncome),
   essentialExpenses: many(essentialExpense),
+  investments: many(investment),
+  essentialInvestments: many(essentialInvestment),
 }));
 
 export const transactionRelations = relations(transaction, ({ one }) => ({
@@ -177,6 +215,23 @@ export const essentialExpenseRelations = relations(
   ({ one }) => ({
     user: one(user, {
       fields: [essentialExpense.userId],
+      references: [user.id],
+    }),
+  }),
+);
+
+export const investmentRelations = relations(investment, ({ one }) => ({
+  user: one(user, {
+    fields: [investment.userId],
+    references: [user.id],
+  }),
+}));
+
+export const essentialInvestmentRelations = relations(
+  essentialInvestment,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [essentialInvestment.userId],
       references: [user.id],
     }),
   }),

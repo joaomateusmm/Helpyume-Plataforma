@@ -791,7 +791,7 @@ export default function GanhosPage() {
                       <CopyX className="h-4 w-4" />
                     </Button>
                   )}
-                  <div className="rounded-md border bg-[#0A0A0A] px-2 py-1">
+                  <div className="bg-background rounded-md border px-2 py-1">
                     <DropdownMenu>
                       <DropdownMenuTrigger className="border-none outline-none focus:border-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
                         {itemsPerPage === transactions.length
