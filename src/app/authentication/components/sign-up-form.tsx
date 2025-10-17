@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -61,6 +61,9 @@ const SignUpForm = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] =
+    useState(false);
 
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
@@ -144,11 +147,26 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Digite sua senha"
-                        type="password"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="Digite sua senha"
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="text-muted-foreground h-4 w-4" />
+                          ) : (
+                            <Eye className="text-muted-foreground h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -161,11 +179,30 @@ const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>Confirmar senha</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Digite a sua senha novamente"
-                        type="password"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="Digite a sua senha novamente"
+                          type={showPasswordConfirmation ? "text" : "password"}
+                          {...field}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() =>
+                            setShowPasswordConfirmation(
+                              !showPasswordConfirmation,
+                            )
+                          }
+                        >
+                          {showPasswordConfirmation ? (
+                            <Eye className="text-muted-foreground h-4 w-4" />
+                          ) : (
+                            <EyeOff className="text-muted-foreground h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +224,7 @@ const SignUpForm = () => {
                   "Criar conta"
                 )}
               </Button>
-              <div className="flex w-full items-center justify-center gap-3">
+              {/* <div className="flex w-full items-center justify-center gap-3">
                 <div className="h-0 w-full border-t"></div>
                 <p className="text-muted-foreground text-sm">ou</p>
                 <div className="h-0 w-full border-t"></div>
@@ -227,7 +264,7 @@ const SignUpForm = () => {
                     Criar com Google
                   </>
                 )}
-              </Button>
+              </Button> */}
             </CardFooter>
           </form>
         </Form>

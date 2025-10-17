@@ -36,7 +36,7 @@ const chartConfig = {
     label: "Total Movimentado",
     theme: {
       light: "hsl(0, 0%, 10%)",
-      dark: "hsl(0, 0%, 10%)",
+      dark: "hsl(0, 0%, 88%)",
     },
   },
 } satisfies ChartConfig;
