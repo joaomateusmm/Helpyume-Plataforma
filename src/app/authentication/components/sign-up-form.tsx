@@ -224,7 +224,7 @@ const SignUpForm = () => {
                   "Criar conta"
                 )}
               </Button>
-              {/* <div className="flex w-full items-center justify-center gap-3">
+              <div className="flex w-full items-center justify-center gap-3">
                 <div className="h-0 w-full border-t"></div>
                 <p className="text-muted-foreground text-sm">ou</p>
                 <div className="h-0 w-full border-t"></div>
@@ -264,7 +264,7 @@ const SignUpForm = () => {
                     Criar com Google
                   </>
                 )}
-              </Button> */}
+              </Button>
             </CardFooter>
           </form>
         </Form>
