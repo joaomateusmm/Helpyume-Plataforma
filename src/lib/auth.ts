@@ -9,6 +9,8 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  trustedOrigins: ["http://localhost:3000", "https://logyc.vercel.app"],
   emailAndPassword: {
     enabled: true,
   },
