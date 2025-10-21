@@ -9,7 +9,8 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  // Removemos baseURL para permitir detecção automática pelo Better Auth
+  // O Better Auth detectará automaticamente a URL através dos headers da requisição
   trustedOrigins: ["http://localhost:3000", "https://logyc.vercel.app"],
   emailAndPassword: {
     enabled: true,
