@@ -35,7 +35,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignInForm = () => {
+const SignInForm = ({ switchToSignUp }: { switchToSignUp?: () => void }) => {
   const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -96,10 +96,19 @@ const SignInForm = () => {
   };
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full border-none bg-transparent">
         <CardHeader>
-          <CardTitle>Entrar</CardTitle>
-          <CardDescription>Faça login para continuar.</CardDescription>
+          <CardTitle className="text-4xl">Entrar na conta</CardTitle>
+          <CardDescription>
+            Não possui uma conta Logyc?{" "}
+            <button
+              type="button"
+              onClick={() => switchToSignUp && switchToSignUp()}
+              className="cursor-pointer text-green-600 hover:underline"
+            >
+              Crie uma.
+            </button>
+          </CardDescription>
         </CardHeader>
 
         <Form {...form}>
@@ -110,9 +119,12 @@ const SignInForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu email" {...field} />
+                      <Input
+                        className="h-12 border-none"
+                        placeholder="Digite seu email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,10 +135,10 @@ const SignInForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
+                          className="h-12 border-none"
                           placeholder="Digite sua senha"
                           type={showPassword ? "text" : "password"}
                           {...field}
@@ -154,7 +166,7 @@ const SignInForm = () => {
             <CardFooter className="flex flex-col gap-2">
               <Button
                 type="submit"
-                className="w-full"
+                className="h-12 w-full cursor-pointer bg-green-600 font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-green-700"
                 disabled={isLoading || isGoogleLoading}
               >
                 {isLoading ? (
@@ -163,17 +175,16 @@ const SignInForm = () => {
                     Entrando...
                   </>
                 ) : (
-                  "Entrar"
+                  "Entrar na conta Logyc"
                 )}
               </Button>
-              <div className="flex w-full items-center justify-center gap-3">
+              <div className="my-3 flex w-full items-center justify-center gap-3">
                 <div className="h-0 w-full border-t"></div>
                 <p className="text-muted-foreground text-sm">ou</p>
                 <div className="h-0 w-full border-t"></div>
               </div>
               <Button
-                variant="outline"
-                className="w-full"
+                className="h-12 w-full cursor-pointer border border-white/30 bg-transparent font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-transparent"
                 onClick={handleSignInWithGoogle}
                 type="button"
                 disabled={isLoading || isGoogleLoading}

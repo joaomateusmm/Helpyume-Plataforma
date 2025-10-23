@@ -47,7 +47,7 @@ const formSchema = z
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SignUpForm = () => {
+const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
   const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -105,10 +105,20 @@ const SignUpForm = () => {
 
   return (
     <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Criar conta</CardTitle>
-          <CardDescription>Crie uma conta para continuar.</CardDescription>
+      <Card className="w-full rounded-lg border-none bg-transparent">
+        <CardHeader className="!pb-4">
+          <CardTitle className="text-4xl">Crie sua conta</CardTitle>
+          <CardDescription className="text-muted-foreground/80 text-sm">
+            Ja possui uma conta Logyc? Entre fazendo{" "}
+            <button
+              type="button"
+              onClick={() => switchToSignIn && switchToSignIn()}
+              className="cursor-pointer text-green-600 hover:underline"
+            >
+              login
+            </button>
+            .
+          </CardDescription>
         </CardHeader>
 
         <Form {...form}>
@@ -119,9 +129,12 @@ const SignUpForm = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu nome" {...field} />
+                      <Input
+                        placeholder="Digite seu nome"
+                        {...field}
+                        className="h-12 border border-none bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,86 +145,165 @@ const SignUpForm = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Digite seu email" {...field} />
+                      <Input
+                        placeholder="Digite seu email"
+                        {...field}
+                        className="h-12 border border-none bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="Digite sua senha"
-                          type={showPassword ? "text" : "password"}
-                          {...field}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="text-muted-foreground h-4 w-4" />
-                          ) : (
-                            <Eye className="text-muted-foreground h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="passwordConfirmation"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirmar senha</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="Digite a sua senha novamente"
-                          type={showPasswordConfirmation ? "text" : "password"}
-                          {...field}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() =>
-                            setShowPasswordConfirmation(
-                              !showPasswordConfirmation,
-                            )
-                          }
-                        >
-                          {showPasswordConfirmation ? (
-                            <Eye className="text-muted-foreground h-4 w-4" />
-                          ) : (
-                            <EyeOff className="text-muted-foreground h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="hidden justify-between gap-4 md:flex">
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Digite sua senha"
+                            type={showPassword ? "text" : "password"}
+                            {...field}
+                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="text-muted-foreground h-4 w-4" />
+                            ) : (
+                              <Eye className="text-muted-foreground h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="passwordConfirmation"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Confirme sua senha"
+                            type={
+                              showPasswordConfirmation ? "text" : "password"
+                            }
+                            {...field}
+                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() =>
+                              setShowPasswordConfirmation(
+                                !showPasswordConfirmation,
+                              )
+                            }
+                          >
+                            {showPasswordConfirmation ? (
+                              <Eye className="text-muted-foreground h-4 w-4" />
+                            ) : (
+                              <EyeOff className="text-muted-foreground h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex justify-between gap-4 md:hidden">
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Digite sua..."
+                            type={showPassword ? "text" : "password"}
+                            {...field}
+                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="text-muted-foreground h-4 w-4" />
+                            ) : (
+                              <Eye className="text-muted-foreground h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="passwordConfirmation"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            placeholder="Confirmar..."
+                            type={
+                              showPasswordConfirmation ? "text" : "password"
+                            }
+                            {...field}
+                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() =>
+                              setShowPasswordConfirmation(
+                                !showPasswordConfirmation,
+                              )
+                            }
+                          >
+                            {showPasswordConfirmation ? (
+                              <Eye className="text-muted-foreground h-4 w-4" />
+                            ) : (
+                              <EyeOff className="text-muted-foreground h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
               <Button
-                className="w-full"
+                className="h-12 w-full cursor-pointer bg-green-600 font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-green-700"
                 type="submit"
                 disabled={isLoading || isGoogleLoading}
               >
@@ -221,17 +313,16 @@ const SignUpForm = () => {
                     Criando conta...
                   </>
                 ) : (
-                  "Criar conta"
+                  "Criar conta Logyc"
                 )}
               </Button>
-              <div className="flex w-full items-center justify-center gap-3">
-                <div className="h-0 w-full border-t"></div>
-                <p className="text-muted-foreground text-sm">ou</p>
-                <div className="h-0 w-full border-t"></div>
+              <div className="my-2 flex w-full items-center justify-center gap-3">
+                <div className="h-0 w-full border-t opacity-80"></div>
+                <p className="text-muted-foreground text-sm opacity-50">ou</p>
+                <div className="h-0 w-full border-t opacity-80"></div>
               </div>
               <Button
-                variant="outline"
-                className="w-full"
+                className="h-12 w-full cursor-pointer border border-white/30 bg-transparent font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-transparent"
                 onClick={handleSignInWithGoogle}
                 type="button"
                 disabled={isLoading || isGoogleLoading}
