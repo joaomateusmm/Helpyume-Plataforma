@@ -68,7 +68,7 @@ const Authentication = () => {
       <div className="flex h-screen w-full">
         <div className="flex w-full flex-col lg:flex-row">
           {/* Left: imagem / placeholder (carousel preparado para receber 3 imagens) */}
-          <aside className="relative hidden h-screen w-[85vw] items-center justify-center text-white lg:flex">
+          <aside className="relative hidden h-screen w-[85vw] items-center justify-center border-none text-white lg:flex">
             <div className="flex h-full w-full flex-col items-center justify-center gap-6">
               <div className="relative h-full w-full overflow-hidden">
                 <div
@@ -80,17 +80,17 @@ const Authentication = () => {
                   {slidesData.map((slide, i) => (
                     <div key={i} className="h-full w-1/3 flex-shrink-0">
                       <div
-                        className="relative flex h-full w-full items-end justify-center overflow-hidden rounded-r-4xl bg-black/5"
+                        className="relative flex h-full w-full items-end justify-center overflow-hidden"
                         style={{
                           backgroundImage: `url(${slide.image})`,
                           backgroundSize: "cover",
                           backgroundPosition: "center",
                         }}
                       >
-                        {/* dark overlay to keep text readable */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/50" />
+                        {/* overlay adapts to theme */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/50" />
                         <div className="relative mb-15 flex flex-col p-6 text-center text-white">
-                          <h3 className="font- w-150 font-sans text-5xl">
+                          <h3 className="font-sans text-5xl font-semibold">
                             {slide.title}
                           </h3>
                           <p className="mt-2 text-sm opacity-80">
@@ -109,7 +109,9 @@ const Authentication = () => {
                       aria-label={`Ver slide ${idx + 1}`}
                       onClick={() => setActive(idx)}
                       className={`h-1.5 rounded-full transition-all duration-200 ${
-                        active === idx ? "w-8 bg-white" : "w-6 bg-white/40"
+                        active === idx
+                          ? "w-8 bg-slate-900 dark:bg-white"
+                          : "w-6 bg-slate-400/40 dark:bg-white/40"
                       }`}
                     />
                   ))}
@@ -119,7 +121,7 @@ const Authentication = () => {
           </aside>
 
           {/* Right: forms */}
-          <main className="flex h-screen w-full items-center justify-center bg-gradient-to-t from-green-600/10 via-transparent to-black/50 p-8 lg:w-1/2">
+          <main className="flex h-screen w-full items-center justify-center from-green-600/10 via-transparent to-black/50 p-8 lg:w-1/2 dark:bg-gradient-to-t">
             <div className="w-full max-w-md">
               <Tabs
                 value={tabValue}

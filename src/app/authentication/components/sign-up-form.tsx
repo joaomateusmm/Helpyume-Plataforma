@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -105,10 +106,18 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
 
   return (
     <>
-      <Card className="w-full rounded-lg border-none bg-transparent">
+      <Card className="w-full rounded-lg border-none bg-transparent shadow-none">
         <CardHeader className="!pb-4">
-          <CardTitle className="text-4xl">Crie sua conta</CardTitle>
-          <CardDescription className="text-muted-foreground/80 text-sm">
+          <Link
+            href="/"
+            className="text-muted-foreground cursor-pointer text-xs"
+          >
+            ⟵ Voltar
+          </Link>
+          <CardTitle className="text-4xl text-gray-900 dark:text-white">
+            Crie sua conta
+          </CardTitle>
+          <CardDescription className="dark:text-muted-foreground/80 text-sm text-gray-600">
             Ja possui uma conta Logyc? Entre fazendo{" "}
             <button
               type="button"
@@ -133,7 +142,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                       <Input
                         placeholder="Digite seu nome"
                         {...field}
-                        className="h-12 border border-none bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                        className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                       />
                     </FormControl>
                     <FormMessage />
@@ -149,7 +158,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                       <Input
                         placeholder="Digite seu email"
                         {...field}
-                        className="h-12 border border-none bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                        className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                       />
                     </FormControl>
                     <FormMessage />
@@ -168,7 +177,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                             placeholder="Digite sua senha"
                             type={showPassword ? "text" : "password"}
                             {...field}
-                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                            className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                           />
                           <Button
                             type="button"
@@ -202,7 +211,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                               showPasswordConfirmation ? "text" : "password"
                             }
                             {...field}
-                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                            className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                           />
                           <Button
                             type="button"
@@ -240,7 +249,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                             placeholder="Digite sua..."
                             type={showPassword ? "text" : "password"}
                             {...field}
-                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                            className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                           />
                           <Button
                             type="button"
@@ -274,7 +283,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                               showPasswordConfirmation ? "text" : "password"
                             }
                             {...field}
-                            className="h-12 border border-none border-white/10 bg-white/5 text-white placeholder:text-white/60 focus:border-green-500 focus:ring-0"
+                            className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-500 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60"
                           />
                           <Button
                             type="button"
@@ -322,7 +331,7 @@ const SignUpForm = ({ switchToSignIn }: { switchToSignIn?: () => void }) => {
                 <div className="h-0 w-full border-t opacity-80"></div>
               </div>
               <Button
-                className="h-12 w-full cursor-pointer border border-white/30 bg-transparent font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-transparent"
+                className="h-12 w-full cursor-pointer border border-gray-300 bg-transparent font-sans font-normal text-gray-900 duration-300 hover:scale-[1.02] hover:bg-transparent dark:border-white/30 dark:text-white"
                 onClick={handleSignInWithGoogle}
                 type="button"
                 disabled={isLoading || isGoogleLoading}

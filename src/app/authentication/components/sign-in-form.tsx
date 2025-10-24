@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -96,10 +97,18 @@ const SignInForm = ({ switchToSignUp }: { switchToSignUp?: () => void }) => {
   };
   return (
     <>
-      <Card className="w-full border-none bg-transparent">
+      <Card className="w-full border-none bg-transparent shadow-none">
         <CardHeader>
-          <CardTitle className="text-4xl">Entrar na conta</CardTitle>
-          <CardDescription>
+          <Link
+            href="/"
+            className="text-muted-foreground cursor-pointer text-xs"
+          >
+            ⟵ Voltar
+          </Link>
+          <CardTitle className="text-4xl text-gray-900 dark:text-white">
+            Entrar na conta
+          </CardTitle>
+          <CardDescription className="dark:text-muted-foreground/80 text-gray-600">
             Não possui uma conta Logyc?{" "}
             <button
               type="button"
@@ -121,7 +130,7 @@ const SignInForm = ({ switchToSignUp }: { switchToSignUp?: () => void }) => {
                   <FormItem>
                     <FormControl>
                       <Input
-                        className="h-12 border-none"
+                        className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-600 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60 dark:focus:border-green-500"
                         placeholder="Digite seu email"
                         {...field}
                       />
@@ -138,7 +147,7 @@ const SignInForm = ({ switchToSignUp }: { switchToSignUp?: () => void }) => {
                     <FormControl>
                       <div className="relative">
                         <Input
-                          className="h-12 border-none"
+                          className="h-12 border border-gray-200 bg-white text-gray-900 placeholder:text-gray-500 focus:border-green-600 focus:ring-0 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/60 dark:focus:border-green-500"
                           placeholder="Digite sua senha"
                           type={showPassword ? "text" : "password"}
                           {...field}
@@ -184,7 +193,7 @@ const SignInForm = ({ switchToSignUp }: { switchToSignUp?: () => void }) => {
                 <div className="h-0 w-full border-t"></div>
               </div>
               <Button
-                className="h-12 w-full cursor-pointer border border-white/30 bg-transparent font-sans font-normal text-white duration-300 hover:scale-[1.02] hover:bg-transparent"
+                className="h-12 w-full cursor-pointer border border-gray-300 bg-transparent font-sans font-normal text-gray-900 duration-300 hover:scale-[1.02] hover:bg-transparent dark:border-white/30 dark:text-white"
                 onClick={handleSignInWithGoogle}
                 type="button"
                 disabled={isLoading || isGoogleLoading}
